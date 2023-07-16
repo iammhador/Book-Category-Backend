@@ -1,9 +1,10 @@
 require("dotenv").config();
 const express = require("express");
-const app = express();
 const port = 5000;
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+
+const app = express();
 
 //# Middleware:
 app.use(cors());
@@ -114,10 +115,19 @@ async function run() {
     //@ Update matched with email book:
     app.patch("/update-book/:id", async (req, res) => {
       const id = req.params.id;
-      const body = req.body;
+      const body = req.body.data;
 
+      const data = {
+        title: body.title,
+        author: body.author,
+        genre: body.genre,
+        publicationYear: body.publicationYear,
+      };
       try {
-        const book = await booksCollection.updateOne({ id }, { $set: body });
+        const book = await booksCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: data }
+        );
 
         if (book) {
           res.status(200).json(book);
@@ -129,16 +139,14 @@ async function run() {
       }
     });
 
-    //@ Update matched with email book:
+    //@ Delete matched with email book:
     app.delete("/delete-book/:id", async (req, res) => {
-      const id = req.query.id;
-      const book = await booksCollection.deleteOne({
-        id,
-      });
-      if (book) {
+      const id = req.params.id;
+      const book = await booksCollection.deleteOne({ _id: new ObjectId(id) });
+      if (book.deletedCount > 0) {
         res.status(200).json(book);
       } else {
-        res.status(404).json({ message: "Can't delete books" });
+        res.status(404).json({ message: "Can't delete book" });
       }
     });
   } finally {
