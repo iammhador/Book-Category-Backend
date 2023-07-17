@@ -28,6 +28,9 @@ async function run() {
     client.connect();
     const booksCollection = client.db("BestReaders").collection("books");
     const commentsCollection = client.db("BestReaders").collection("comments");
+    const wishlistCollection = client.db("BestReaders").collection("wishlist");
+    const readingCollection = client.db("BestReaders").collection("reading");
+    const finishedCollection = client.db("BestReaders").collection("finished");
 
     //@ Find all books:
     app.get("/all-books", async (req, res) => {
@@ -109,6 +112,114 @@ async function run() {
         res.status(200).json(comment);
       } else {
         res.status(404).json({ message: "Can't post a comment" });
+      }
+    });
+
+    //@ Create wishlist :
+    app.patch("/wishlist", async (req, res) => {
+      try {
+        const data = req.body;
+        const { email, id } = data;
+
+        const checkEmail = await wishlistCollection.findOne({
+          email,
+        });
+
+        const checkId = await wishlistCollection.findOne({
+          id,
+        });
+
+        if (checkEmail && checkId) {
+          const wishlistBookData = {
+            email,
+            id,
+            wishlist: true,
+          };
+
+          const updateResult = await wishlistCollection.updateOne(
+            { id },
+            { $set: wishlistBookData }
+          );
+
+          res.status(200).json(updateResult);
+        } else {
+          const insertResult = await wishlistCollection.insertOne(data);
+          res.status(200).json(insertResult);
+        }
+      } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+    //@ Create reading :
+    app.patch("/reading", async (req, res) => {
+      try {
+        const data = req.body;
+        const { email, id } = data;
+
+        const checkEmail = await readingCollection.findOne({
+          email,
+        });
+
+        const checkId = await readingCollection.findOne({
+          id,
+        });
+
+        if (checkEmail && checkId) {
+          const readingBookData = {
+            email,
+            id,
+            reading: true,
+          };
+
+          const updateResult = await readingCollection.updateOne(
+            { id },
+            { $set: readingBookData }
+          );
+
+          res.status(200).json(updateResult);
+        } else {
+          const insertResult = await readingCollection.insertOne(data);
+          res.status(200).json(insertResult);
+        }
+      } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+    //@ Create finished :
+    app.patch("/finished", async (req, res) => {
+      try {
+        const data = req.body;
+        const { email, id } = data;
+
+        const checkEmail = await finishedCollection.findOne({
+          email,
+        });
+
+        const checkId = await finishedCollection.findOne({
+          id,
+        });
+
+        if (checkEmail && checkId) {
+          const finishedBookData = {
+            email,
+            id,
+            finished: true,
+          };
+
+          const updateResult = await finishedCollection.updateOne(
+            { id },
+            { $set: finishedBookData }
+          );
+
+          res.status(200).json(updateResult);
+        } else {
+          const insertResult = await finishedCollection.insertOne(data);
+          res.status(200).json(insertResult);
+        }
+      } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
       }
     });
 
