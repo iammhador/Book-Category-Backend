@@ -91,6 +91,39 @@ async function run() {
       }
     });
 
+    //@ Get wishlist:
+    app.get("/wishlist/:email", async (req, res) => {
+      const email = req.params.email;
+      const wishlist = await wishlistCollection.find({ email }).toArray();
+      if (wishlist) {
+        res.status(200).json(wishlist);
+      } else {
+        res.status(404).json({ message: "Can't find wishlist" });
+      }
+    });
+
+    //@ Get reading:
+    app.get("/reading/:email", async (req, res) => {
+      const email = req.params.email;
+      const reading = await readingCollection.find({ email }).toArray();
+      if (reading) {
+        res.status(200).json(reading);
+      } else {
+        res.status(404).json({ message: "Can't find reading" });
+      }
+    });
+
+    //@ Get finished:
+    app.get("/finished/:email", async (req, res) => {
+      const email = req.params.email;
+      const finished = await finishedCollection.find({ email }).toArray();
+      if (finished) {
+        res.status(200).json(finished);
+      } else {
+        res.status(404).json({ message: "Can't find finished" });
+      }
+    });
+
     //@ Create new book:
     app.post("/add-book", async (req, res) => {
       const currentTime = new Date();
